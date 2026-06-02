@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>羊了個羊 · 三消挑战</title>
+    <title>羊了个羊 · 立体堆叠 · 关卡设计器</title>
     <style>
         * {
             user-select: none;
@@ -15,86 +15,183 @@
             margin: 0;
             min-height: 100vh;
             background: linear-gradient(145deg, #1b5e2a 0%, #0a3b1a 100%);
-            font-family: 'Segoe UI', 'Poppins', 'Noto Sans TC', system-ui, -apple-system, 'Helvetica Neue', sans-serif;
+            font-family: 'Segoe UI', 'Poppins', 'Noto Sans TC', system-ui, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
+            padding: 16px;
             touch-action: manipulation;
         }
 
-        /* 游戏主容器 - 手机友好尺寸 */
-        .game-container {
+        /* 主容器双栏布局 (设计区+游戏区) */
+        .app-container {
+            max-width: 1300px;
             width: 100%;
-            max-width: 450px;
-            margin: 12px 12px;
-            background: rgba(255,248,205,0.85);
-            border-radius: 56px 56px 48px 48px;
-            box-shadow: 0 20px 35px rgba(0,0,0,0.4), inset 0 1px 4px rgba(255,255,200,0.8);
-            backdrop-filter: blur(2px);
-            padding: 16px 12px 24px;
-            transition: all 0.2s;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
         }
 
-        /* 顶部状态栏 */
+        /* 关卡设计面板 */
+        .design-panel {
+            flex: 1.2;
+            min-width: 280px;
+            background: #fdf3df;
+            border-radius: 48px;
+            padding: 18px 16px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.4);
+            backdrop-filter: blur(2px);
+            border: 1px solid #ffefc0;
+        }
+
+        .design-panel h2 {
+            margin: 0 0 12px 0;
+            font-size: 1.5rem;
+            text-align: center;
+            color: #5a3e1b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .layer-config {
+            background: #fff3e0;
+            border-radius: 32px;
+            padding: 12px;
+            margin-bottom: 20px;
+        }
+
+        .layer-item {
+            background: #e9dbbc;
+            margin-bottom: 12px;
+            border-radius: 28px;
+            padding: 12px 14px;
+            transition: 0.1s;
+        }
+
+        .layer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #4a2e0e;
+        }
+
+        .layer-controls {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .layer-controls input {
+            width: 60px;
+            padding: 6px;
+            border-radius: 40px;
+            border: none;
+            text-align: center;
+            font-weight: bold;
+            background: #fffaf0;
+        }
+
+        .layer-controls button {
+            background: #cfa668;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 32px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .add-layer-btn, .apply-design-btn {
+            background: #7c5e3a;
+            color: white;
+            border: none;
+            width: 100%;
+            padding: 10px;
+            border-radius: 60px;
+            font-weight: bold;
+            margin-top: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .apply-design-btn {
+            background: #2f6b2f;
+            margin-top: 16px;
+        }
+
+        .icon-selector {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+
+        .icon-option {
+            font-size: 1.8rem;
+            background: #fff3cf;
+            padding: 4px 12px;
+            border-radius: 40px;
+            cursor: pointer;
+            border: 2px solid transparent;
+        }
+
+        .icon-option.selected {
+            border-color: #d48d2b;
+            background: #ffefb0;
+            transform: scale(1.05);
+        }
+
+        /* 游戏区域 */
+        .game-panel {
+            flex: 1.8;
+            min-width: 320px;
+            background: rgba(255,248,205,0.9);
+            border-radius: 56px;
+            padding: 16px 14px 24px;
+            box-shadow: 0 20px 35px rgba(0,0,0,0.5);
+            backdrop-filter: blur(2px);
+        }
+
         .game-header {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
             background: #fdf8e7;
-            padding: 12px 18px;
+            padding: 8px 18px;
             border-radius: 60px;
-            margin-bottom: 20px;
-            box-shadow: inset 0 1px 4px #0001, 0 5px 10px rgba(0,0,0,0.2);
+            margin-bottom: 16px;
         }
 
         .score-box, .remaining-box {
             background: #2c2b28;
-            padding: 6px 18px;
+            padding: 4px 16px;
             border-radius: 40px;
             color: #ffeaac;
             font-weight: bold;
-            font-size: 1.4rem;
-            text-shadow: 0 1px 0 #5f3f00;
-            letter-spacing: 1px;
+            font-size: 1.2rem;
         }
 
-        .score-box span, .remaining-box span {
-            font-size: 0.8rem;
-            color: #ddb76e;
-            margin-right: 6px;
-        }
-
-        /* 卡槽区 (类似羊了个羊底部槽位) */
         .slot-area {
             background: #e7dbb6;
             border-radius: 48px;
-            padding: 12px 12px;
+            padding: 12px;
             margin-bottom: 20px;
             box-shadow: inset 0 0 0 3px #fff9e8, inset 0 0 0 6px #b9975a, 0 8px 18px black;
         }
 
-        .slot-title {
-            text-align: center;
-            font-size: 0.7rem;
-            font-weight: bold;
-            color: #7a5610;
-            background: #fffaec;
-            display: inline-block;
-            width: auto;
-            margin: 0 auto 8px;
-            padding: 2px 16px;
-            border-radius: 20px;
-            letter-spacing: 1px;
-        }
-
         .slots {
             display: flex;
-            flex-wrap: nowrap;
             justify-content: center;
             gap: 10px;
+            flex-wrap: nowrap;
             overflow-x: auto;
-            padding: 8px 4px;
-            min-height: 85px;
+            min-height: 90px;
         }
 
         .slot-card {
@@ -105,453 +202,543 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.6rem;
-            font-weight: bold;
+            font-size: 2.4rem;
             box-shadow: 0 6px 0 #aa7c3c;
-            transition: all 0.1s ease;
             flex-shrink: 0;
-            position: relative;
-            background: #fff3df;
-            border: 1px solid #ecc48b;
         }
 
-        /* 卡片槽位7个, 超出预警红色闪烁 (视觉提示) */
         .slot-card.warning {
             background: #ffb4a2;
             box-shadow: 0 0 0 2px #ff4444;
-            transform: scale(0.98);
         }
 
-        /* 主牌堆区域 (层叠卡片) */
-        .deck-area {
+        /* 立体堆叠舞台 */
+        .stack-stage {
             background: #ccaa75;
             border-radius: 48px;
-            padding: 16px 8px;
-            margin-bottom: 16px;
-            box-shadow: inset 0 0 0 3px #fef0cf, inset 0 0 0 6px #b47c44, 0 6px 12px black;
+            padding: 24px 12px;
+            margin: 12px 0;
+            box-shadow: inset 0 0 0 3px #fef0cf, inset 0 0 0 6px #b47c44, 0 8px 14px black;
+            min-height: 460px;
+            position: relative;
         }
 
-        .cards-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 12px 10px;
-            justify-items: center;
+        .cards-stack {
+            position: relative;
+            display: flex;
+            flex-direction: column;
             align-items: center;
+            justify-content: center;
+            min-height: 420px;
         }
 
-        /* 卡片样式: 圆润可爱 */
-        .card {
+        /* 堆叠卡片 - 立体错位效果 */
+        .stack-card {
+            position: absolute;
+            width: 80px;
+            height: 100px;
             background: #fff7e8;
-            width: 100%;
-            aspect-ratio: 3 / 4;
-            max-width: 85px;
             border-radius: 18px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 2.2rem;
             font-weight: bold;
-            box-shadow: 0 8px 0 #a86f2e;
-            transition: 0.05s linear;
+            box-shadow: 0 8px 0 #a86f2e, 0 4px 12px rgba(0,0,0,0.3);
             cursor: pointer;
-            touch-action: manipulation;
-            transform: translateY(-2px);
+            transition: 0.05s linear;
+            transform-origin: center;
+            backface-visibility: visible;
             border: 1px solid #fce6b4;
+            z-index: 10;
         }
 
-        .card:active {
-            transform: translateY(4px);
+        .stack-card:active {
+            transform: translateY(3px);
             box-shadow: 0 3px 0 #a86f2e;
         }
 
-        /* 不可见/占位 */
-        .card.removed {
-            visibility: hidden;
+        /* 禁用点击蒙层效果，只能点最上层 */
+        .stack-card.disabled-card {
+            filter: brightness(0.85);
+            cursor: default;
             pointer-events: none;
-            box-shadow: none;
-            background: transparent;
-            transform: scale(0.9);
         }
 
-        /* 重置按钮 + 提示 */
         .control-bar {
             display: flex;
             justify-content: center;
-            gap: 20px;
-            margin-top: 15px;
+            gap: 16px;
+            margin-top: 16px;
         }
 
         button {
             background: #ffdd99;
             border: none;
-            font-size: 1.1rem;
             font-weight: bold;
-            padding: 10px 28px;
+            padding: 8px 20px;
             border-radius: 60px;
-            color: #4f2d0a;
-            box-shadow: 0 5px 0 #b16224;
-            transition: 0.07s linear;
+            box-shadow: 0 4px 0 #b16224;
             cursor: pointer;
-            font-family: inherit;
-            touch-action: manipulation;
-        }
-
-        button:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #b16224;
         }
 
         .message-area {
             text-align: center;
-            margin-top: 16px;
-            font-size: 0.9rem;
-            font-weight: bold;
+            margin-top: 12px;
             background: #2b2b1faa;
-            backdrop-filter: blur(4px);
             border-radius: 40px;
             padding: 6px;
             color: #ffefb9;
+            font-size: 0.8rem;
         }
 
-        /* 手机窄屏适配 */
-        @media (max-width: 480px) {
-            .game-container {
-                margin: 8px;
-                padding: 12px 8px 20px;
-            }
-            .slot-card {
-                width: 60px;
-                height: 75px;
-                font-size: 2rem;
-            }
-            .card {
-                font-size: 1.8rem;
-            }
-            .cards-grid {
-                gap: 8px;
-            }
-            .score-box, .remaining-box {
-                padding: 4px 12px;
-                font-size: 1.1rem;
-            }
-        }
-        @media (max-width: 380px) {
-            .slot-card {
-                width: 55px;
-                height: 70px;
-                font-size: 1.7rem;
-            }
-            .card {
-                font-size: 1.5rem;
-            }
+        @media (max-width: 850px) {
+            .stack-card { width: 65px; height: 85px; font-size: 1.8rem; }
+            .slot-card { width: 55px; height: 70px; font-size: 1.8rem; }
         }
     </style>
 </head>
 <body>
-<div class="game-container">
-    <div class="game-header">
-        <div class="score-box"><span>🐏 积分</span> <span id="scoreValue">0</span></div>
-        <div class="remaining-box"><span>📦 剩余</span> <span id="remainingCount">0</span></div>
+<div class="app-container">
+    <!-- 左侧: 关卡设计器 (定义堆叠方式) -->
+    <div class="design-panel">
+        <h2>🏗️ 堆叠关卡设计器</h2>
+        <div id="layersContainer" class="layer-config"></div>
+        <button id="addLayerBtn" class="add-layer-btn">➕ 增加一层</button>
+        <button id="applyDesignBtn" class="apply-design-btn">🎲 按设计堆叠 · 随机发牌并开始游戏</button>
+        <div style="margin-top: 16px; font-size:12px; color:#5a3a15; text-align:center;">
+            💡 提示：上层卡片会压住下层，只有未被压住的顶层卡片才可点击。<br>
+            每层可设置卡片数量 & 偏移量(px)，支持任意堆叠造型。
+        </div>
     </div>
 
-    <div class="slot-area">
-        <div style="text-align: center;"><span class="slot-title">📥 卡槽 (最多7张)</span></div>
-        <div class="slots" id="slotContainer"></div>
+    <!-- 右侧: 游戏区 -->
+    <div class="game-panel">
+        <div class="game-header">
+            <div class="score-box">🐏 积分 <span id="scoreValue">0</span></div>
+            <div class="remaining-box">📦 剩余 <span id="remainingCount">0</span></div>
+        </div>
+        <div class="slot-area">
+            <div style="text-align:center; font-size:0.7rem;">📥 卡槽 (最多7张)</div>
+            <div class="slots" id="slotContainer"></div>
+        </div>
+        <div class="stack-stage">
+            <div class="cards-stack" id="cardsStack"></div>
+        </div>
+        <div class="control-bar">
+            <button id="resetGameBtn">🔄 重来本局</button>
+            <button id="shuffleSlotBtn">♻️ 洗牌(重排场上)</button>
+        </div>
+        <div class="message-area" id="gameMessage">✨ 先在左侧设计堆叠层次，点击「按设计堆叠」开始 ✨</div>
     </div>
-
-    <div class="deck-area">
-        <div class="cards-grid" id="cardsGrid"></div>
-    </div>
-
-    <div class="control-bar">
-        <button id="resetBtn">🔄 重来</button>
-        <button id="shuffleBtn">♻️ 洗牌</button>
-    </div>
-    <div class="message-area" id="gameMessage">点击卡片，放入卡槽，三个相同消除！</div>
 </div>
 
 <script>
-    // ---------- 游戏配置 ----------
-    // 定义可用图标 (羊了个羊风格，可爱emoji/符号)
-    const ICONS = ['🌿', '🍂', '🔥', '💧', '⭐', '❤️', '🍎', '🐑', '🐏', '🌸', '🌻', '🍀'];
-    // 难度设定: 生成多少对? 我们生成6种图案，每种出现6次 => 共36张，排成4x9? 但网格最好排4x? 动态
-    // 为了更丰富且过关有挑战，卡片总数: 32张 (8种图案各4张) -> 可消除分数 = 32/3 ≈ 10组有余数，但不一定完全消光，随机布局加上洗牌可玩性高
-    // 但羊了个羊核心难点是槽位限制且多层，此处简化但机制一致: 点击卡片进入槽位，槽位满7且没有三消则失败。消除后得分并移除槽内三张相同。
-    // 为了更有趣，牌堆所有卡片都是可见的，无层级，但可以洗牌并重新挑战，像"羊了个羊"轻量版。
-    let currentCards = [];        // 存储卡片对象 { id, icon, visible (始终true，移除就删除) }
-    let slotCards = [];           // 存储当前槽位中的图标 (字符串数组)
-    let score = 0;               // 得分 (每消除一组+10)
-    let gameActive = true;       // 是否游戏结束(胜利/失败)
-   
+    // ----------------------------------------------
+    // 羊了个羊 · 立体堆叠 + 关卡设计器
+    // 核心特性：
+    // 1. 自定义每一层卡片数量 + 错位偏移 (X/Y随机微调，但保留层叠感)
+    // 2. 只有没有被任何上层卡片覆盖的卡片才能点击 (基于包围盒/重叠检测)
+    // 3. 游戏开始时按设计布局，随机从全局牌库中分配图标，保证每种图标数量是3的倍数
+    // 4. 槽位三消机制 + 胜利/失败判定
+    // ----------------------------------------------
+    
+    // ----- 全局变量 -----
+    let gameActive = true;
+    let score = 0;
+    let slotCards = [];            // 槽位图标数组
+    let stackCards = [];           // 堆叠卡片对象数组 { id, icon, x, y, layer, width, height, topMost }
+    let nextCardId = 1;
+    let currentDeckIcons = [];     // 当前牌库中的图标池 (按设计总数量生成，确保3倍数)
+    
     // DOM 元素
-    const cardsGrid = document.getElementById('cardsGrid');
+    const layersContainer = document.getElementById('layersContainer');
+    const addLayerBtn = document.getElementById('addLayerBtn');
+    const applyDesignBtn = document.getElementById('applyDesignBtn');
+    const cardsStackDiv = document.getElementById('cardsStack');
     const slotContainer = document.getElementById('slotContainer');
     const scoreSpan = document.getElementById('scoreValue');
     const remainingSpan = document.getElementById('remainingCount');
-    const resetBtn = document.getElementById('resetBtn');
-    const shuffleBtn = document.getElementById('shuffleBtn');
-    const messageDiv = document.getElementById('gameMessage');
-   
-    // 辅助函数: 更新UI (卡片网格, 槽位, 剩余牌数)
-    function updateUI() {
-        // 更新分数显示
-        scoreSpan.innerText = score;
-        // 更新剩余未使用卡片数量
-        const remaining = currentCards.filter(c => !c.removed).length;
-        remainingSpan.innerText = remaining;
-       
-        // 渲染牌堆
-        cardsGrid.innerHTML = '';
-        currentCards.forEach(card => {
-            if (!card.removed) {
-                const cardDiv = document.createElement('div');
-                cardDiv.className = 'card';
-                cardDiv.innerText = card.icon;
-                cardDiv.setAttribute('data-id', card.id);
-                cardDiv.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    if (!gameActive) {
-                        messageDiv.innerText = gameActive === false && remaining === 0 && slotCards.length === 0 ? "🎉 恭喜通关！按重来继续 🎉" : "游戏已结束，请按重来";
-                        return;
-                    }
-                    onCardClick(card.id);
-                });
-                cardsGrid.appendChild(cardDiv);
-            }
+    const resetGameBtn = document.getElementById('resetGameBtn');
+    const shuffleSlotBtn = document.getElementById('shuffleSlotBtn');
+    const gameMessageDiv = document.getElementById('gameMessage');
+    
+    // 图标池 (羊了个羊风格)
+    const ALL_ICONS = ['🌿', '🍂', '🔥', '💧', '⭐', '❤️', '🍎', '🐑', '🌸', '🌻', '🍀', '🪶', '🧸', '🎈', '🍁', '🌟'];
+    
+    // 默认设计: 经典三层堆叠 (底层多，中层略少，顶层最少，错开)
+    let layerDesigns = [
+        { cardCount: 8, offsetX: 24, offsetY: 18 },   // 底层
+        { cardCount: 5, offsetX: 20, offsetY: 16 },   // 中层
+        { cardCount: 3, offsetX: 15, offsetY: 14 }    // 顶层
+    ];
+    
+    // 存储当前设计的层配置 (UI绑定)
+    function renderLayerConfig() {
+        layersContainer.innerHTML = '';
+        layerDesigns.forEach((layer, idx) => {
+            const div = document.createElement('div');
+            div.className = 'layer-item';
+            div.innerHTML = `
+                <div class="layer-header">
+                    <span>📚 第 ${idx+1} 层</span>
+                    <button class="remove-layer" data-idx="${idx}" style="background:#b35f2e; padding:2px 12px;">🗑️</button>
+                </div>
+                <div class="layer-controls">
+                    <label>卡片数: <input type="number" class="layer-count" value="${layer.cardCount}" min="1" max="30" data-idx="${idx}"></label>
+                    <label>X偏移: <input type="number" class="layer-offsetX" value="${layer.offsetX}" min="0" max="80" data-idx="${idx}"></label>
+                    <label>Y偏移: <input type="number" class="layer-offsetY" value="${layer.offsetY}" min="0" max="80" data-idx="${idx}"></label>
+                </div>
+            `;
+            layersContainer.appendChild(div);
         });
-       
-        // 渲染槽位 (最多7个，显示警告样式)
+        // 绑定移除事件
+        document.querySelectorAll('.remove-layer').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.dataset.idx);
+                if (layerDesigns.length > 1) {
+                    layerDesigns.splice(idx, 1);
+                    renderLayerConfig();
+                } else {
+                    gameMessageDiv.innerText = '至少需要一层堆叠';
+                }
+            });
+        });
+        // 绑定修改事件
+        document.querySelectorAll('.layer-count').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const idx = parseInt(inp.dataset.idx);
+                layerDesigns[idx].cardCount = parseInt(inp.value) || 1;
+            });
+        });
+        document.querySelectorAll('.layer-offsetX').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const idx = parseInt(inp.dataset.idx);
+                layerDesigns[idx].offsetX = parseInt(inp.value) || 0;
+            });
+        });
+        document.querySelectorAll('.layer-offsetY').forEach(inp => {
+            inp.addEventListener('change', (e) => {
+                const idx = parseInt(inp.dataset.idx);
+                layerDesigns[idx].offsetY = parseInt(inp.value) || 0;
+            });
+        });
+    }
+    
+    addLayerBtn.addEventListener('click', () => {
+        layerDesigns.push({ cardCount: 4, offsetX: 18, offsetY: 15 });
+        renderLayerConfig();
+    });
+    
+    // ----- 辅助: 根据设计总卡片数，生成图标池 (每种图标出现次数为3的倍数)
+    function generateIconPool(totalCards) {
+        // 确保 totalCards 是3的倍数
+        let needed = totalCards;
+        if (needed % 3 !== 0) {
+            needed += (3 - (needed % 3));
+        }
+        // 选取合适种类，每种至少3张, 生成数组
+        let iconTypes = [...ALL_ICONS];
+        let pool = [];
+        let idx = 0;
+        while (pool.length < needed) {
+            let icon = iconTypes[idx % iconTypes.length];
+            let count = 3;  // 基础单位3的倍数
+            for (let i = 0; i < count && pool.length < needed; i++) pool.push(icon);
+            idx++;
+        }
+        // 最后确保长度精确，若超出裁剪，但前面已控制，再洗牌
+        pool = pool.slice(0, needed);
+        // 随机打乱
+        for (let i = pool.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [pool[i], pool[j]] = [pool[j], pool[i]];
+        }
+        return pool;
+    }
+    
+    // 计算每个卡片的位置: 根据层配置，为该层每张卡片生成坐标 (基于一个基础中心点 + 层内随机偏移 + 错位偏移)
+    function generateStackPositions(designs) {
+        const positions = []; // { layer, x, y }
+        const baseCenterX = 200, baseCenterY = 200; // 相对父容器偏移 (flex居中靠css调整)
+        let currentLayer = 0;
+        for (let layer of designs) {
+            const count = layer.cardCount;
+            const offsetX = layer.offsetX;
+            const offsetY = layer.offsetY;
+            // 该层内随机错落，但整体围绕中心，同时避免太分散
+            for (let i = 0; i < count; i++) {
+                // 每个卡片位置: 以中心为基准 + 根据索引偏移 + 轻微随机 (模拟自然堆叠)
+                let angle = (i / count) * Math.PI * 2;
+                let radius = offsetX * 0.8;
+                let xOff = Math.cos(angle) * radius + (Math.random() - 0.5) * 18;
+                let yOff = Math.sin(angle) * (offsetY * 0.7) + currentLayer * 22 + (Math.random() - 0.5) * 12;
+                let x = baseCenterX + xOff;
+                let y = baseCenterY + yOff - (currentLayer * 8);
+                positions.push({ layer: currentLayer, x, y, width: 80, height: 100 });
+            }
+            currentLayer++;
+        }
+        return positions;
+    }
+    
+    // 检测卡片遮盖关系 (返回每个卡片的topMost状态: 是否没有其他卡片压住)
+    function updateTopMostStatus(cards) {
+        // 重置
+        cards.forEach(c => c.topMost = true);
+        for (let i = 0; i < cards.length; i++) {
+            const cardA = cards[i];
+            for (let j = 0; j < cards.length; j++) {
+                if (i === j) continue;
+                const cardB = cards[j];
+                // 如果B的层数 > A的层数（更上层）并且B与A的矩形有重叠，则A被压住
+                if (cardB.layer > cardA.layer) {
+                    // 矩形碰撞检测
+                    const aLeft = cardA.x - cardA.width/2;
+                    const aRight = cardA.x + cardA.width/2;
+                    const aTop = cardA.y - cardA.height/2;
+                    const aBottom = cardA.y + cardA.height/2;
+                    const bLeft = cardB.x - cardB.width/2;
+                    const bRight = cardB.x + cardB.width/2;
+                    const bTop = cardB.y - cardB.height/2;
+                    const bBottom = cardB.y + cardB.height/2;
+                    if (aRight > bLeft && aLeft < bRight && aBottom > bTop && aTop < bBottom) {
+                        cardA.topMost = false;
+                        break;
+                    }
+                }
+            }
+        }
+        return cards;
+    }
+    
+    // 根据当前designs + 随机图标池，构建完整的堆叠卡片 (并渲染)
+    function buildGameByDesign() {
+        // 1. 计算总卡片数
+        let total = layerDesigns.reduce((sum, l) => sum + l.cardCount, 0);
+        if (total === 0) {
+            gameMessageDiv.innerText = '至少要有卡片才能开局！';
+            return false;
+        }
+        // 生成图标池 (自动3倍数保障)
+        let iconPool = generateIconPool(total);
+        if (iconPool.length !== total) {
+            // 补丁
+            while(iconPool.length < total) iconPool.push('🐏');
+        }
+        // 打乱图标池
+        for (let i=iconPool.length - 1; i>0; i--) {
+            const j = Math.floor(Math.random()*(i+1));
+            [iconPool[i], iconPool[j]] = [iconPool[j], iconPool[i]];
+        }
+        // 生成位置
+        const positions = generateStackPositions(layerDesigns);
+        if (positions.length !== total) {
+            console.error("位置数量不一致");
+            return false;
+        }
+        // 建立卡片
+        const newCards = [];
+        for (let i=0; i<total; i++) {
+            newCards.push({
+                id: nextCardId++,
+                icon: iconPool[i],
+                x: positions[i].x,
+                y: positions[i].y,
+                layer: positions[i].layer,
+                width: 80,
+                height: 100,
+                topMost: true,
+                removed: false
+            });
+        }
+        // 更新遮盖关系
+        updateTopMostStatus(newCards);
+        stackCards = newCards;
+        // 重置槽位和分数
+        slotCards = [];
+        score = 0;
+        gameActive = true;
+        updateUI();
+        gameMessageDiv.innerText = '🎲 新关卡！点击顶层卡片（发光）放入卡槽，三消通关~';
+        return true;
+    }
+    
+    // 点击卡片逻辑 (只有未被移除 && topMost === true 才能点击)
+    function onStackCardClick(cardId) {
+        if (!gameActive) {
+            gameMessageDiv.innerText = '游戏已结束，请重来或重新设计';
+            return;
+        }
+        const card = stackCards.find(c => c.id === cardId && !c.removed);
+        if (!card) return;
+        if (!card.topMost) {
+            gameMessageDiv.innerText = '⛔ 这张牌被压住了！先点击上层卡牌吧';
+            return;
+        }
+        // 将图标加入槽位
+        slotCards.push(card.icon);
+        // 移除这张卡片
+        card.removed = true;
+        // 移除后重新计算所有剩余卡片的遮盖状态
+        const remainingCards = stackCards.filter(c => !c.removed);
+        updateTopMostStatus(remainingCards);
+        // 更新引用
+        stackCards = stackCards.map(c => {
+            if (!c.removed) {
+                const fresh = remainingCards.find(rc => rc.id === c.id);
+                if (fresh) return fresh;
+            }
+            return c;
+        });
+        
+        // 更新UI
+        updateUI();
+        // 槽位消除检测
+        eliminateFromSlot();
+        // 检查游戏结束
+        checkGameFail();
+        checkGameWin();
+        updateUI();
+    }
+    
+    // 槽位消除 (递归)
+    function eliminateFromSlot() {
+        let eliminated = false;
+        while (true) {
+            const countMap = new Map();
+            for (let icon of slotCards) countMap.set(icon, (countMap.get(icon)||0)+1);
+            let target = null;
+            for (let [icon, cnt] of countMap) if (cnt >= 3) { target = icon; break; }
+            if (!target) break;
+            let removed = 0;
+            const newSlot = [];
+            for (let icon of slotCards) {
+                if (icon === target && removed < 3) { removed++; continue; }
+                newSlot.push(icon);
+            }
+            slotCards = newSlot;
+            score += 10;
+            eliminated = true;
+            gameMessageDiv.innerText = `🎉 消除三个 ${target} +10分！`;
+        }
+        if (eliminated) updateUI();
+    }
+    
+    function checkGameFail() {
+        if (!gameActive) return true;
+        if (slotCards.length >= 7) {
+            // 检查有无消除可能性
+            const countMap = new Map();
+            for (let icon of slotCards) countMap.set(icon, (countMap.get(icon)||0)+1);
+            let can = false;
+            for (let cnt of countMap.values()) if (cnt >= 3) can = true;
+            if (!can) {
+                gameActive = false;
+                gameMessageDiv.innerText = '💥 槽位爆满且无三消可能，游戏失败！重新设计或重来';
+                updateUI();
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    function checkGameWin() {
+        const remaining = stackCards.filter(c => !c.removed).length;
+        if (remaining === 0 && slotCards.length === 0 && gameActive) {
+            gameActive = false;
+            gameMessageDiv.innerText = '🏆 完美通关！ 设计成功 🏆';
+            updateUI();
+            return true;
+        }
+        return false;
+    }
+    
+    // 洗牌 (仅重排未被移除卡片的图标顺序，保留堆叠位置)
+    function reshuffleRemainingIcons() {
+        if (!gameActive) {
+            gameMessageDiv.innerText = '游戏已结束，请重置或重新设计';
+            return;
+        }
+        const activeCards = stackCards.filter(c => !c.removed);
+        if (activeCards.length === 0) return;
+        const iconsList = activeCards.map(c => c.icon);
+        for (let i=iconsList.length-1; i>0; i--) {
+            const j = Math.floor(Math.random()*(i+1));
+            [iconsList[i], iconsList[j]] = [iconsList[j], iconsList[i]];
+        }
+        activeCards.forEach((card, idx) => { card.icon = iconsList[idx]; });
+        updateUI();
+        gameMessageDiv.innerText = '♻️ 场上剩余卡片已洗牌！继续挑战';
+    }
+    
+    // UI渲染: 堆叠卡片 + 槽位 + 分数
+    function updateUI() {
+        // 渲染堆叠区域
+        cardsStackDiv.innerHTML = '';
+        const containerRect = cardsStackDiv.getBoundingClientRect();
+        const activeCards = stackCards.filter(c => !c.removed);
+        activeCards.forEach(card => {
+            const cardDiv = document.createElement('div');
+            cardDiv.className = 'stack-card';
+            if (!card.topMost) cardDiv.classList.add('disabled-card');
+            cardDiv.style.position = 'absolute';
+            cardDiv.style.left = `calc(50% + ${card.x - 200}px)`;
+            cardDiv.style.top = `${card.y - 60}px`;
+            cardDiv.style.width = `${card.width}px`;
+            cardDiv.style.height = `${card.height}px`;
+            cardDiv.style.zIndex = card.layer * 10 + (card.topMost ? 100 : 1);
+            cardDiv.innerText = card.icon;
+            cardDiv.addEventListener('click', (e) => {
+                e.stopPropagation();
+                onStackCardClick(card.id);
+            });
+            cardsStackDiv.appendChild(cardDiv);
+        });
+        // 槽位
         slotContainer.innerHTML = '';
-        for (let i = 0; i < slotCards.length; i++) {
+        for (let i=0; i<slotCards.length; i++) {
             const slotDiv = document.createElement('div');
             slotDiv.className = 'slot-card';
             if (slotCards.length >= 7) slotDiv.classList.add('warning');
             slotDiv.innerText = slotCards[i];
             slotContainer.appendChild(slotDiv);
         }
-        // 补齐空白槽位占位（保持样式）
-        for (let i = slotCards.length; i < 7; i++) {
+        for (let i=slotCards.length; i<7; i++) {
             const emptyDiv = document.createElement('div');
             emptyDiv.className = 'slot-card';
-            emptyDiv.style.background = '#eeddbb';
-            emptyDiv.style.boxShadow = 'inset 0 0 0 1px #bba46c';
             emptyDiv.style.opacity = '0.5';
             emptyDiv.innerText = '?';
             slotContainer.appendChild(emptyDiv);
         }
-       
-        // 检查失败情况 (槽位>=7 且无三消可能, 但实际上每次添加卡片后调用eliminateAndCheck)
+        scoreSpan.innerText = score;
+        const remain = stackCards.filter(c => !c.removed).length;
+        remainingSpan.innerText = remain;
     }
-   
-    // 消除槽位中所有能消除的组 (递归消除直到没有三连)
-    function eliminateFromSlot() {
-        let eliminated = false;
-        // 统计槽位中每个图标的出现次数
-        const countMap = new Map();
-        for (let icon of slotCards) {
-            countMap.set(icon, (countMap.get(icon) || 0) + 1);
-        }
-        let toEliminateIcon = null;
-        for (let [icon, cnt] of countMap.entries()) {
-            if (cnt >= 3) {
-                toEliminateIcon = icon;
-                break;
-            }
-        }
-        if (toEliminateIcon) {
-            // 移除槽位中该图标的前三个 (实际移除所有该图标中三次，羊了个羊经典消三张相同)
-            let removedCount = 0;
-            const newSlot = [];
-            for (let icon of slotCards) {
-                if (icon === toEliminateIcon && removedCount < 3) {
-                    removedCount++;
-                    continue;
-                }
-                newSlot.push(icon);
-            }
-            slotCards = newSlot;
-            score += 10;
-            eliminated = true;
-            messageDiv.innerText = `✨ 消除 ${toEliminateIcon} ✨ +10分 !`;
-            // 递归继续消除 (可能剩下的还有三连)
-            if (eliminated) {
-                eliminateFromSlot(); // 递归直到无消除
-            }
-        }
-        // 如果没有任何消除，但槽位已经大于等于7张并且游戏未结束 => 游戏失败
-        if (!eliminated && slotCards.length >= 7 && gameActive) {
-            gameActive = false;
-            messageDiv.innerText = '😭 槽位已满，无法消除... 游戏失败！点击重来 😭';
-            updateUI();
-            return false;
-        }
-        // 胜利检测: 牌堆无剩余 & 槽位为空
-        const remainingCards = currentCards.filter(c => !c.removed).length;
-        if (remainingCards === 0 && slotCards.length === 0 && gameActive === true) {
-            gameActive = false;
-            messageDiv.innerText = '🎉 恭喜通关！ 你是真正的羊了个羊大师！ 🎉';
-            updateUI();
-            return true;
-        }
-        updateUI();
-        return eliminated;
-    }
-   
-    // 处理点击卡片
-    function onCardClick(cardId) {
-        if (!gameActive) return;
-        const cardIndex = currentCards.findIndex(c => c.id === cardId && !c.removed);
-        if (cardIndex === -1) return;
-        const card = currentCards[cardIndex];
-        // 将卡片图标加入到槽位
-        slotCards.push(card.icon);
-        // 标记卡片为已移除
-        card.removed = true;
-       
-        // 更新UI再消除
-        updateUI();
-       
-        // 执行消除逻辑 (同时会检测失败/胜利)
-        const hadEliminate = eliminateFromSlot(); // 内部会更新UI并检测失败
-       
-        // 如果游戏失败gameActive被设为false则不用额外处理
-        if (!gameActive) return;
-       
-        // 额外胜利判定如果刚刚消除后空槽且无牌了，eliminateFromSlot已经设置胜利
-        const remainingAfter = currentCards.filter(c => !c.removed).length;
-        if (remainingAfter === 0 && slotCards.length === 0 && gameActive) {
-            gameActive = false;
-            messageDiv.innerText = '🎉 完美通关！ 🎉';
-            updateUI();
-        } else if (slotCards.length >= 7 && !hadEliminate) {
-            // 安全兜底: 如果槽位7张且消除函数没有消除(无三连)那么失败
-            gameActive = false;
-            messageDiv.innerText = '💥 槽位爆炸了... 游戏结束 💥';
-            updateUI();
-        } else {
-            // 一切正常， 刷新提示
-            if (gameActive) messageDiv.innerText = '继续点击卡片，凑三消～';
-        }
-    }
-   
-    // 重置/初始化游戏
-    function initGame() {
-        // 生成卡片组: 使用前8种图标, 每种出现4次 => 共32张 (可玩性不错)
-        // 为了更有挑战，也可随机多几种，但保持总数在30~36之间手机操作舒适
-        const usedIcons = ICONS.slice(0, 8);  // 8种图案
-        let deck = [];
-        let idCounter = 0;
-        // 每个图标出现4张 -> 32张
-        for (let icon of usedIcons) {
-            for (let i = 0; i < 4; i++) {
-                deck.push({ id: idCounter++, icon: icon, removed: false });
-            }
-        }
-        // 随机打乱
-        deck = shuffleArray(deck);
-        currentCards = deck;
-        slotCards = [];
-        score = 0;
-        gameActive = true;
-        messageDiv.innerText = '🐏 点击卡片，放入卡槽，三个相同消除！槽位最多7张，注意策略~';
+    
+    // 重置当前牌局 (按照当前设计重新发牌)
+    function resetByCurrentDesign() {
+        buildGameByDesign();
         updateUI();
     }
-   
-    // Fisher-Yates 洗牌
-    function shuffleArray(arr) {
-        for (let i = arr.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [arr[i], arr[j]] = [arr[j], arr[i]];
-        }
-        return arr;
-    }
-   
-    // 洗牌功能 (仅洗剩余未移除的卡片，保留移除状态)
-    function shuffleRemainingCards() {
-        if (!gameActive) {
-            // 游戏结束后洗牌没有意义, 可以重置, 但为了体验可直接重置? 要么提示重置，为了交互, 如果游戏结束, 调用重置？
-            messageDiv.innerText = '游戏已结束，请按"重来"开始新游戏~';
-            return;
-        }
-        // 获取未移除卡片
-        const activeCards = currentCards.filter(c => !c.removed);
-        if (activeCards.length === 0) {
-            messageDiv.innerText = '已经没有卡片了！太厉害了，按重来继续挑战';
-            if (slotCards.length === 0) gameActive = false;
-            return;
-        }
-        // 暂存当前槽位里的内容，并且不能影响槽位吗？羊了个羊洗牌通常只重置场上牌的顺序，保留槽位
-        // 但为了避免洗牌后槽位不匹配导致失去平衡，洗牌只改变剩余卡片的顺序，不会影响槽位现有卡片。
-        // 为了玩家体验，洗牌前需要先判断当前牌桌状态，不能清空槽位
-        const remainingIds = activeCards.map(c => c.id);
-        // 提取这些对象的引用
-        const remainingObjs = activeCards;
-        // 重新随机排序
-        const shuffledRemaining = shuffleArray([...remainingObjs]);
-        // 按照新顺序重新构建currentCards中未移除卡片的顺序（保留移除卡的位置）
-        let newCurrentCards = [];
-        let shuffledIndex = 0;
-        for (let card of currentCards) {
-            if (card.removed) {
-                newCurrentCards.push(card);
-            } else {
-                // 从洗好的数组中取
-                const newCard = shuffledRemaining[shuffledIndex++];
-                // 保证id不变保留引用，但图标不变，只是顺序变化
-                newCurrentCards.push(newCard);
-            }
-        }
-        currentCards = newCurrentCards;
-        // 洗牌后刷新，不清除槽位，可能帮助玩家形成三消
-        updateUI();
-        messageDiv.innerText = '♻️ 牌堆已重排，继续挑战！注意卡槽容量~';
-        // 洗牌后再次自动检测槽位如果有三消直接消除? 为了公平起见，调用eliminateFromSlot触发自动消除（防止槽位已经有三个相同但是之前未自动消除? 之前逻辑每次添加卡片都有消除，洗牌不改变槽位，但依然需要检查是否存在槽位三消）
-        eliminateFromSlot();
-        // 二次胜利判定
-        const remainingAfter = currentCards.filter(c => !c.removed).length;
-        if (remainingAfter === 0 && slotCards.length === 0 && gameActive) {
-            gameActive = false;
-            messageDiv.innerText = '🎉 洗牌后通关！太神啦 🎉';
-            updateUI();
-        }
-    }
-   
-    // 重置游戏（完整重置）
-    function resetGame() {
-        initGame();
-    }
-   
-    // 绑定事件
-    resetBtn.addEventListener('click', () => {
-        resetGame();
+    
+    // 绑定按钮
+    applyDesignBtn.addEventListener('click', () => {
+        // 保存设计后重新构建
+        renderLayerConfig();  // 获取最新数值
+        buildGameByDesign();
     });
-    shuffleBtn.addEventListener('click', () => {
-        if (!gameActive) {
-            // 如果游戏结束了但玩家还想挣扎，重置更方便? 不过保留重置按钮够用，也可以给个提示
-            if (currentCards.filter(c=>!c.removed).length === 0 && slotCards.length === 0) {
-                messageDiv.innerText = '游戏已通关！点击重来继续挑战新牌局';
-            } else {
-                messageDiv.innerText = '游戏已经结束，请按重来按钮吧';
-            }
-            return;
-        }
-        shuffleRemainingCards();
+    resetGameBtn.addEventListener('click', () => {
+        resetByCurrentDesign();
     });
-   
-    // 手机触摸优化 & 初始化
-    initGame();
-   
-    // 额外确保卡片点击无延迟
-    document.querySelectorAll('button, .card').forEach(el => {
-        el.addEventListener('touchstart', (e) => {
-            // 只是为了提高移动端响应，不用preventDefault以免影响滚动
-        });
+    shuffleSlotBtn.addEventListener('click', () => {
+        reshuffleRemainingIcons();
     });
-   
-    // 增加一个简单工具，当槽位太多时显示友好
-    // 也监听胜利失败后，重新生成
-   
-    // 补充：因为洗牌时可能当前的card grid数量很多，显示良好。整体设计符合手机竖直滑动体验
+    
+    // 初始化渲染设计器
+    renderLayerConfig();
+    // 初次默认构建游戏
+    buildGameByDesign();
 </script>
 </body>
 </html>
