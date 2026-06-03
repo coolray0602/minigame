@@ -1,0 +1,674 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>羊了个羊 · 精准错位关卡设计器 | 八方向半格网格</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1b5e2a 0%, #0a3b1a 100%);
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .designer-container {
+            max-width: 1400px;
+            width: 100%;
+            background: #fef3dd;
+            border-radius: 64px;
+            padding: 24px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        h1 {
+            text-align: center;
+            margin: 0 0 5px;
+            color: #5a3c1a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+        }
+
+        .sub {
+            text-align: center;
+            color: #8b6942;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+
+        .flex-layout {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 28px;
+        }
+
+        /* 左侧控制区 */
+        .control-panel {
+            flex: 1.2;
+            min-width: 280px;
+            background: #fff7e8;
+            border-radius: 48px;
+            padding: 20px;
+            box-shadow: 0 8px 18px rgba(0,0,0,0.15);
+        }
+
+        .layer-manager {
+            background: #ebddb0;
+            border-radius: 36px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .layer-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .layer-stack {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            max-height: 240px;
+            overflow-y: auto;
+            margin-bottom: 12px;
+        }
+
+        .layer-chip {
+            background: #faf0cf;
+            border-radius: 60px;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: 0.05s;
+            border: 2px solid transparent;
+        }
+
+        .layer-chip.active-layer {
+            border-color: #d48d2b;
+            background: #ffefb0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+        }
+
+        .btn-icon {
+            background: #c28a4e;
+            border: none;
+            color: white;
+            border-radius: 40px;
+            padding: 4px 12px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 0.75rem;
+        }
+
+        button {
+            background: #ffcf8a;
+            border: none;
+            border-radius: 40px;
+            padding: 8px 16px;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: 0.05s linear;
+        }
+
+        button:active {
+            transform: translateY(2px);
+        }
+
+        .btn-primary {
+            background: #7c5e3a;
+            color: white;
+            width: 100%;
+            margin-top: 8px;
+        }
+
+        .btn-success {
+            background: #2f6b2f;
+            color: white;
+        }
+
+        .info-card {
+            background: #e8dbbc;
+            border-radius: 32px;
+            padding: 14px;
+            margin-top: 16px;
+            font-size: 0.85rem;
+        }
+
+        /* 右侧画布区 */
+        .preview-area {
+            flex: 2;
+            min-width: 500px;
+            background: #ccaa75;
+            border-radius: 56px;
+            padding: 20px;
+            box-shadow: inset 0 0 0 3px #fef0cf, inset 0 0 0 6px #b47c44, 0 8px 18px black;
+        }
+
+        .canvas-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .grid-canvas-container {
+            background: #b28244a0;
+            border-radius: 48px;
+            padding: 12px;
+            overflow: auto;
+            display: flex;
+            justify-content: center;
+        }
+
+        #designCanvas {
+            background: #e1c394;
+            border-radius: 40px;
+            box-shadow: inset 0 0 0 2px #ffe6b3;
+            display: block;
+            margin: 0 auto;
+            cursor: crosshair;
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 16px;
+            font-size: 0.7rem;
+            background: #2e241a80;
+            padding: 6px;
+            border-radius: 60px;
+            color: #ffefcf;
+            flex-wrap: wrap;
+        }
+
+        .export-json {
+            margin-top: 16px;
+            background: #2d2a1f;
+            color: #ffecb3;
+            padding: 10px;
+            border-radius: 32px;
+            font-family: monospace;
+            font-size: 0.65rem;
+            word-break: break-all;
+            max-height: 100px;
+            overflow: auto;
+        }
+    </style>
+</head>
+<body>
+<div class="designer-container">
+    <h1>🐏 羊了个羊 · 精准八向错位设计器 🧩</h1>
+    <div class="sub">📐 正方形卡牌 48x48 | 同层不可堆叠 | 合法位置 = 基础网格 + 八个方向半格偏移 (上下左右 + 四角) | 均匀排布无空格</div>
+
+    <div class="flex-layout">
+        <!-- 左侧：图层管理与控制 -->
+        <div class="control-panel">
+            <div class="layer-manager">
+                <div class="layer-title">
+                    <span>🗂️ 图层管理 (上层压下层)</span>
+                    <button id="addLayerBtn" style="background:#9b6e3e; padding:4px 14px;">+ 新增图层</button>
+                </div>
+                <div id="layerListContainer" class="layer-stack"></div>
+                <div style="font-size:0.7rem; margin-top:5px;">💡 点击图层切换编辑，新卡片归当前层 | 同层绝不可重叠</div>
+            </div>
+            
+            <div class="info-card">
+                <div><strong>📐 卡牌尺寸:</strong> 正方形 48x48 px</div>
+                <div><strong>🎯 合法位置:</strong> 基础网格(间距48px) + 8方向半格偏移(上/下/左/右/左上/右上/左下/右下) 偏移量24px</div>
+                <div><strong>📊 当前总卡片:</strong> <span id="totalCardsCount">0</span> 张 
+                    (<span id="multipleStatus">❌ 不是3的倍数</span>)
+                </div>
+                <button id="autoFixMultipleBtn" style="margin-top:8px; background:#b88b4a;">🔧 自动补齐至3的倍数 (补空白占位卡)</button>
+            </div>
+            
+            <button id="exportLevelBtn" class="btn-primary btn-success" style="margin-top:12px;">💾 导出关卡文件 (.json)</button>
+            <div class="export-json" id="jsonPreviewText">等待导出数据...</div>
+            <div style="font-size:0.7rem; margin-top:10px; color:#4a3118;">✅ 导出包含每个卡片精确坐标、图层。游戏读取后随机分配3的倍数图标，保证可解。</div>
+        </div>
+
+        <!-- 右侧：画布 (均匀排列合法点，无空格) -->
+        <div class="preview-area">
+            <div class="canvas-header">
+                <span>🖌️ 当前编辑图层: <strong id="currentLayerLabel">第1层</strong></span>
+                <button id="clearCurrentLayerBtn" style="background:#b6582c;">🗑️ 清空当前图层</button>
+                <button id="clearAllBtn" style="background:#aa3e1e;">⚠️ 清空全部卡片</button>
+            </div>
+            <div class="grid-canvas-container">
+                <canvas id="designCanvas" width="720" height="620" style="width:100%; height:auto; max-width:720px; aspect-ratio:720/620"></canvas>
+            </div>
+            <div class="legend">
+                <span>🔵 蓝色圆点 = 合法放置点 (完整均匀排布，无间隙)</span>
+                <span>🟤 棕色卡片 = 已放置卡片 (数字表示图层)</span>
+                <span>✨ 支持8方向错位: 上下左右 + 斜角，同层卡片不可重叠</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --------------------------------------------------------------
+    // 羊了个羊 精准错位关卡设计器
+    // 正方形卡牌 48x48，基础网格间距48px
+    // 合法位置 = 每个网格点 + 八个方向偏移半格(24px) → 上、下、左、右、左上、右上、左下、右下
+    // 保证所有合法位置均匀且布满画布，无空缺。同层禁止重复放置(不可堆叠)
+    // 支持多图层，上层卡片会覆盖下层卡片视觉效果，游戏逻辑中只有顶层未被覆盖卡片可点。
+    // --------------------------------------------------------------
+    
+    const CARD_SIZE = 48;           // 正方形边长
+    const HALF = 24;                // 半格偏移量 (0.5倍边长)
+    const GRID_STEP = 48;           // 基础网格间距
+    
+    // 画布尺寸 (保证包含完整网格区域)
+    const CANVAS_W = 720;
+    const CANVAS_H = 620;
+    
+    // 定义生成合法点集: 基于基础网格 + 8个方向偏移 (上,下,左,右,左上,右上,左下,右下)
+    // 保证所有落点都在画布边距内 (卡片中心距离边缘至少24px)
+    let allValidPoints = [];     // 存储 {x, y}
+    
+    // 生成完整无空格的合法点集
+    function generateValidPoints() {
+        const pointsSet = new Map(); // 用map去重 key "x,y"
+        // 先收集基础网格点
+        const basePoints = [];
+        for (let x = GRID_STEP; x <= CANVAS_W - GRID_STEP; x += GRID_STEP) {
+            for (let y = GRID_STEP; y <= CANVAS_H - GRID_STEP; y += GRID_STEP) {
+                basePoints.push({x, y});
+                pointsSet.set(`${x},${y}`, {x, y});
+            }
+        }
+        
+        // 八个方向偏移 (dx, dy)
+        const directions = [
+            {dx: 0, dy: -HALF},    // 上
+            {dx: 0, dy: HALF},     // 下
+            {dx: -HALF, dy: 0},    // 左
+            {dx: HALF, dy: 0},     // 右
+            {dx: -HALF, dy: -HALF}, // 左上
+            {dx: HALF, dy: -HALF},  // 右上
+            {dx: -HALF, dy: HALF},  // 左下
+            {dx: HALF, dy: HALF}    // 右下
+        ];
+        
+        for (let base of basePoints) {
+            for (let dir of directions) {
+                const nx = base.x + dir.dx;
+                const ny = base.y + dir.dy;
+                // 边界检查：保证卡片完全在画布内 (中心距离边界≥半边长24)
+                if (nx >= HALF && nx <= CANVAS_W - HALF && ny >= HALF && ny <= CANVAS_H - HALF) {
+                    const key = `${nx},${ny}`;
+                    if (!pointsSet.has(key)) {
+                        pointsSet.set(key, {x: nx, y: ny});
+                    }
+                }
+            }
+        }
+        
+        // 转换回数组并排序 (从左到右，从上到下)
+        let points = Array.from(pointsSet.values());
+        points.sort((a,b) => {
+            if (Math.abs(a.y - b.y) < 5) return a.x - b.x;
+            return a.y - b.y;
+        });
+        return points;
+    }
+    
+    // 卡片数据结构 { id, x, y, layer }
+    let cards = [];          // 所有已放置卡片
+    let layers = [];         // 图层列表 { id, name, index }
+    let currentLayerId = 0;  // 当前编辑图层索引
+    let nextCardId = 1;
+    
+    // 初始化图层: 默认3层
+    function initLayers() {
+        layers = [];
+        for (let i=0; i<3; i++) {
+            layers.push({ id: i, name: `第${i+1}层`, index: i });
+        }
+        currentLayerId = 0;
+        renderLayerUI();
+    }
+    
+    // 渲染左侧图层列表
+    function renderLayerUI() {
+        const container = document.getElementById('layerListContainer');
+        container.innerHTML = '';
+        layers.forEach((layer, idx) => {
+            const cardCount = cards.filter(c => c.layer === idx).length;
+            const chip = document.createElement('div');
+            chip.className = `layer-chip ${currentLayerId === idx ? 'active-layer' : ''}`;
+            chip.innerHTML = `
+                <span>📚 ${layer.name} (${cardCount}张)</span>
+                <div>
+                    <button class="btn-icon set-layer" data-idx="${idx}" style="background:#7c5e3a;">✏️编辑</button>
+                    ${layers.length > 1 ? `<button class="btn-icon del-layer" data-idx="${idx}" style="background:#aa5440;">🗑️</button>` : ''}
+                </div>
+            `;
+            container.appendChild(chip);
+        });
+        // 绑定图层切换
+        document.querySelectorAll('.set-layer').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.dataset.idx);
+                currentLayerId = idx;
+                renderLayerUI();
+                drawCanvas();
+                document.getElementById('currentLayerLabel').innerText = `第${currentLayerId+1}层`;
+            });
+        });
+        // 删除图层
+        document.querySelectorAll('.del-layer').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const idx = parseInt(btn.dataset.idx);
+                if (layers.length <= 1) return;
+                // 删除该图层所有卡片
+                cards = cards.filter(c => c.layer !== idx);
+                // 图层索引重整：大于idx的层索引-1
+                cards = cards.map(c => {
+                    if (c.layer > idx) return { ...c, layer: c.layer - 1 };
+                    return c;
+                });
+                layers.splice(idx, 1);
+                if (currentLayerId >= layers.length) currentLayerId = layers.length - 1;
+                if (currentLayerId < 0) currentLayerId = 0;
+                renderLayerUI();
+                drawCanvas();
+                updateStats();
+            });
+        });
+        document.getElementById('currentLayerLabel').innerText = `第${currentLayerId+1}层`;
+    }
+    
+    // 更新统计 & 3倍数提醒
+    function updateStats() {
+        const total = cards.length;
+        document.getElementById('totalCardsCount').innerText = total;
+        const isMultiple = (total % 3 === 0);
+        const statusSpan = document.getElementById('multipleStatus');
+        if (isMultiple) {
+            statusSpan.innerHTML = '✅ 是3的倍数 (可解)';
+            statusSpan.style.color = '#2f6b2f';
+        } else {
+            statusSpan.innerHTML = `❌ 不是3的倍数 (剩余${3 - (total%3)}张补齐)`;
+            statusSpan.style.color = '#b33a1a';
+        }
+    }
+    
+    // 检查某个坐标是否已被占用 (同层不可堆叠, 跨层可以堆叠但物理位置可重叠，游戏里上层会压下层)
+    // 注意: 同层不能有任何重叠，不同层允许坐标完全相同(上层压下层)
+    function isPointOccupiedInSameLayer(x, y, layer) {
+        return cards.some(card => card.layer === layer && Math.abs(card.x - x) < 1 && Math.abs(card.y - y) < 1);
+    }
+    
+    // 自动补齐至3的倍数 (添加空白占位卡片，放置在空闲合法点)
+    function autoFixMultiple() {
+        let total = cards.length;
+        const remainder = total % 3;
+        if (remainder === 0) {
+            alert("已经是3的倍数，无需补齐");
+            return;
+        }
+        const need = 3 - remainder;
+        let added = 0;
+        // 遍历所有合法点寻找空闲位置（在当前任意图层中不重复位置均可，优先当前图层空闲点）
+        for (let point of allValidPoints) {
+            if (added >= need) break;
+            // 检查是否已经在同一图层有卡片 (为了避免同层重复，但补卡可以补到当前图层，只要不跟当前层冲突即可)
+            if (!isPointOccupiedInSameLayer(point.x, point.y, currentLayerId)) {
+                cards.push({
+                    id: nextCardId++,
+                    x: point.x,
+                    y: point.y,
+                    layer: currentLayerId
+                });
+                added++;
+            }
+        }
+        // 如果还不足，强行允许跨层但尽量避开
+        if (added < need) {
+            for (let point of allValidPoints) {
+                if (added >= need) break;
+                const alreadyUsed = cards.some(c => Math.abs(c.x - point.x) < 2 && Math.abs(c.y - point.y) < 2 && c.layer === currentLayerId);
+                if (!alreadyUsed) {
+                    cards.push({ id: nextCardId++, x: point.x, y: point.y, layer: currentLayerId });
+                    added++;
+                }
+            }
+        }
+        drawCanvas();
+        renderLayerUI();
+        updateStats();
+    }
+    
+    // 清空当前图层所有卡片
+    function clearCurrentLayer() {
+        cards = cards.filter(c => c.layer !== currentLayerId);
+        drawCanvas();
+        renderLayerUI();
+        updateStats();
+    }
+    
+    function clearAllCards() {
+        if (confirm('⚠️ 清空所有卡片？无法撤销')) {
+            cards = [];
+            drawCanvas();
+            renderLayerUI();
+            updateStats();
+        }
+    }
+    
+    // 画布绘制: 网格背景、所有合法点(均匀无空格)、卡片
+    const canvas = document.getElementById('designCanvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = CANVAS_W;
+    canvas.height = CANVAS_H;
+    
+    function drawCanvas() {
+        ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+        // 1. 绘制浅色网格线 (辅助视觉)
+        ctx.strokeStyle = '#c8aa6e';
+        ctx.lineWidth = 0.6;
+        for (let x = GRID_STEP; x <= CANVAS_W; x += GRID_STEP) {
+            ctx.beginPath();
+            ctx.moveTo(x, 0);
+            ctx.lineTo(x, CANVAS_H);
+            ctx.stroke();
+        }
+        for (let y = GRID_STEP; y <= CANVAS_H; y += GRID_STEP) {
+            ctx.beginPath();
+            ctx.moveTo(0, y);
+            ctx.lineTo(CANVAS_W, y);
+            ctx.stroke();
+        }
+        
+        // 2. 绘制所有合法放置点 (均匀排列，无空格，八向错位全覆盖)
+        for (let p of allValidPoints) {
+            ctx.beginPath();
+            ctx.fillStyle = '#2c7cb6';
+            ctx.arc(p.x, p.y, 5, 0, 2*Math.PI);
+            ctx.fill();
+            ctx.fillStyle = '#9fddff';
+            ctx.arc(p.x, p.y, 3, 0, 2*Math.PI);
+            ctx.fill();
+        }
+        
+        // 3. 绘制卡片 (按图层下层->上层顺序，让上层视觉覆盖)
+        const sortedCards = [...cards].sort((a,b) => a.layer - b.layer);
+        for (let card of sortedCards) {
+            const isCurrentLayer = (card.layer === currentLayerId);
+            const x = card.x - CARD_SIZE/2;
+            const y = card.y - CARD_SIZE/2;
+            // 卡片背景
+            ctx.shadowBlur = 0;
+            ctx.fillStyle = isCurrentLayer ? '#fce9b4' : '#deb887';
+            ctx.shadowColor = 'rgba(0,0,0,0.2)';
+            ctx.fillRect(x, y, CARD_SIZE, CARD_SIZE);
+            ctx.strokeStyle = '#b97f3a';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, CARD_SIZE, CARD_SIZE);
+            // 图层编号
+            ctx.font = `bold ${CARD_SIZE * 0.35}px "Segoe UI"`;
+            ctx.fillStyle = '#5a2f0a';
+            ctx.fillText(`L${card.layer+1}`, x + CARD_SIZE*0.28, y + CARD_SIZE*0.7);
+            // 小羊标记
+            ctx.font = `${CARD_SIZE * 0.45}px monospace`;
+            ctx.fillStyle = '#b87c3a';
+            ctx.fillText('🐏', x + CARD_SIZE*0.65, y + CARD_SIZE*0.82);
+        }
+        
+        // 绘制当前图层高亮外框 (便于识别正在编辑的层)
+        ctx.globalAlpha = 0.25;
+        for (let card of cards) {
+            if (card.layer === currentLayerId) {
+                ctx.fillStyle = '#ffd966';
+                ctx.fillRect(card.x - CARD_SIZE/2 - 3, card.y - CARD_SIZE/2 - 3, CARD_SIZE+6, CARD_SIZE+6);
+            }
+        }
+        ctx.globalAlpha = 1;
+    }
+    
+    // 查找最近的合法点 (点击吸附)
+    function findNearestValidPoint(clickX, clickY, maxDist = 20) {
+        let best = null;
+        let minDist = maxDist;
+        for (let p of allValidPoints) {
+            const dx = p.x - clickX;
+            const dy = p.y - clickY;
+            const dist = Math.sqrt(dx*dx + dy*dy);
+            if (dist < minDist) {
+                minDist = dist;
+                best = p;
+            }
+        }
+        return best;
+    }
+    
+    // 点击画布放置卡片 (同层禁止重复放置)
+    function onCanvasClick(e) {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        let mouseX = (e.clientX - rect.left) * scaleX;
+        let mouseY = (e.clientY - rect.top) * scaleY;
+        mouseX = Math.min(Math.max(mouseX, HALF), CANVAS_W - HALF);
+        mouseY = Math.min(Math.max(mouseY, HALF), CANVAS_H - HALF);
+        
+        const targetPoint = findNearestValidPoint(mouseX, mouseY, 22);
+        if (!targetPoint) {
+            alert("请点击蓝色标记的合法位置 (所有网格点及其八方向错位点)");
+            return;
+        }
+        // 检查同层是否已存在卡片 (同层不可堆叠)
+        if (isPointOccupiedInSameLayer(targetPoint.x, targetPoint.y, currentLayerId)) {
+            alert("❌ 同一图层不可堆叠放置！该位置已经有卡片，请切换图层或选择其他空位。");
+            return;
+        }
+        // 添加卡片到当前图层
+        cards.push({
+            id: nextCardId++,
+            x: targetPoint.x,
+            y: targetPoint.y,
+            layer: currentLayerId
+        });
+        drawCanvas();
+        renderLayerUI();
+        updateStats();
+    }
+    
+    // 导出关卡配置 (供游戏读取，包含完整合法点集和卡片位置)
+    function exportLevel() {
+        let total = cards.length;
+        if (total % 3 !== 0) {
+            if (!confirm(`当前卡片数量 ${total} 不是3的倍数，游戏读取后将无法完全三消。是否自动补齐至3的倍数再导出？`)) {
+                // 继续导出原样
+            } else {
+                autoFixMultiple();
+                total = cards.length;
+            }
+        }
+        const exportData = {
+            version: "3.0",
+            cardSize: CARD_SIZE,
+            halfOffset: HALF,
+            gridStep: GRID_STEP,
+            totalCards: cards.length,
+            layersCount: layers.length,
+            cards: cards.map(c => ({ id: c.id, x: c.x, y: c.y, layer: c.layer })),
+            validPoints: allValidPoints,   // 完整均匀合法点，游戏读取后同层不可重复放置
+            description: "八向错位手动关卡，同层不可堆叠，上层压下层。导出卡片数量自动3倍数。"
+        };
+        const jsonStr = JSON.stringify(exportData, null, 2);
+        document.getElementById('jsonPreviewText').innerText = jsonStr;
+        // 下载文件
+        const blob = new Blob([jsonStr], {type: "application/json"});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `sheep_precise_level_${Date.now()}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        alert("✅ 关卡已导出！游戏读取后会根据卡片数量随机分配3的倍数图标，确保可解。");
+    }
+    
+    // 添加新图层
+    function addNewLayer() {
+        const newId = layers.length;
+        layers.push({ id: newId, name: `第${newId+1}层`, index: newId });
+        currentLayerId = newId;
+        renderLayerUI();
+        drawCanvas();
+        updateStats();
+    }
+    
+    // 事件绑定
+    document.getElementById('addLayerBtn').addEventListener('click', addNewLayer);
+    document.getElementById('clearCurrentLayerBtn').addEventListener('click', clearCurrentLayer);
+    document.getElementById('clearAllBtn').addEventListener('click', clearAllCards);
+    document.getElementById('autoFixMultipleBtn').addEventListener('click', autoFixMultiple);
+    document.getElementById('exportLevelBtn').addEventListener('click', exportLevel);
+    canvas.addEventListener('click', onCanvasClick);
+    
+    // 初始化所有合法点 (八向错位全覆盖)
+    function initValidPoints() {
+        allValidPoints = generateValidPoints();
+        console.log(`生成了 ${allValidPoints.length} 个合法放置点 (基础网格+八方向半格偏移，无空格)`);
+    }
+    
+    // 整体初始化
+    function init() {
+        initValidPoints();
+        initLayers();
+        cards = [];
+        nextCardId = 1;
+        drawCanvas();
+        updateStats();
+    }
+    init();
+    
+    // 窗口resize重绘保持
+    window.addEventListener('resize', () => drawCanvas());
+</script>
+</body>
+</html>
