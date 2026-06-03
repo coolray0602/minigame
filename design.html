@@ -2,31 +2,33 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>羊了个羊 · 严格层级堆叠设计器 | 同层绝对禁止重叠</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>羊了个羊 · 关卡设计器 | 边界安全+手机自适应</title>
     <style>
         * {
             box-sizing: border-box;
             user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
             background: linear-gradient(145deg, #1b5e2a 0%, #0a3b1a 100%);
             font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
-            padding: 20px;
+            padding: 16px;
             margin: 0;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
+            touch-action: manipulation;
         }
 
         .designer-container {
-            max-width: 1400px;
+            max-width: 1300px;
             width: 100%;
             background: #fef3dd;
-            border-radius: 64px;
-            padding: 24px;
+            border-radius: 56px;
+            padding: 20px 16px;
             box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
@@ -37,65 +39,70 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 10px;
+            font-size: 1.4rem;
+            flex-wrap: wrap;
         }
 
         .sub {
             text-align: center;
             color: #8b6942;
-            margin-bottom: 24px;
-            font-size: 0.9rem;
+            margin-bottom: 20px;
+            font-size: 0.8rem;
         }
 
         .flex-layout {
             display: flex;
             flex-wrap: wrap;
-            gap: 28px;
+            gap: 20px;
         }
 
         .control-panel {
             flex: 1.2;
-            min-width: 280px;
+            min-width: 240px;
             background: #fff7e8;
-            border-radius: 48px;
-            padding: 20px;
+            border-radius: 40px;
+            padding: 16px;
             box-shadow: 0 8px 18px rgba(0,0,0,0.15);
         }
 
         .layer-manager {
             background: #ebddb0;
-            border-radius: 36px;
-            padding: 16px;
-            margin-bottom: 20px;
+            border-radius: 32px;
+            padding: 14px;
+            margin-bottom: 16px;
         }
 
         .layer-title {
             font-weight: bold;
-            font-size: 1.2rem;
+            font-size: 1rem;
             display: flex;
             justify-content: space-between;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
 
         .layer-stack {
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            max-height: 260px;
+            gap: 8px;
+            max-height: 220px;
             overflow-y: auto;
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .layer-chip {
             background: #faf0cf;
-            border-radius: 60px;
-            padding: 8px 12px;
+            border-radius: 50px;
+            padding: 6px 10px;
             display: flex;
             justify-content: space-between;
             align-items: center;
             cursor: pointer;
             transition: 0.05s;
             border: 2px solid transparent;
+            font-size: 0.85rem;
         }
 
         .layer-chip.active-layer {
@@ -109,21 +116,23 @@
             border: none;
             color: white;
             border-radius: 40px;
-            padding: 4px 12px;
+            padding: 3px 10px;
             cursor: pointer;
             font-weight: bold;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
         }
 
         button {
             background: #ffcf8a;
             border: none;
             border-radius: 40px;
-            padding: 8px 16px;
+            padding: 8px 14px;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             transition: 0.05s linear;
+            font-family: inherit;
+            font-size: 0.85rem;
         }
 
         button:active {
@@ -144,132 +153,151 @@
 
         .info-card {
             background: #e8dbbc;
-            border-radius: 32px;
-            padding: 14px;
-            margin-top: 16px;
-            font-size: 0.85rem;
+            border-radius: 28px;
+            padding: 12px;
+            margin-top: 12px;
+            font-size: 0.75rem;
         }
 
         .preview-area {
             flex: 2;
-            min-width: 500px;
+            min-width: 280px;
             background: #ccaa75;
-            border-radius: 56px;
-            padding: 20px;
+            border-radius: 48px;
+            padding: 16px;
             box-shadow: inset 0 0 0 3px #fef0cf, inset 0 0 0 6px #b47c44, 0 8px 18px black;
         }
 
         .canvas-header {
             display: flex;
             justify-content: space-between;
-            align-items: baseline;
-            margin-bottom: 16px;
+            align-items: center;
+            margin-bottom: 12px;
             flex-wrap: wrap;
-            gap: 10px;
+            gap: 8px;
+            font-size: 0.85rem;
         }
 
         .grid-canvas-container {
             background: #b28244a0;
-            border-radius: 48px;
-            padding: 12px;
+            border-radius: 40px;
+            padding: 8px;
             overflow: auto;
             display: flex;
             justify-content: center;
+            max-height: 55vh;
         }
 
         #designCanvas {
             background: #e1c394;
-            border-radius: 40px;
+            border-radius: 32px;
             box-shadow: inset 0 0 0 2px #ffe6b3;
             display: block;
-            margin: 0 auto;
             cursor: crosshair;
+            width: 100%;
+            height: auto;
+            aspect-ratio: 720 / 620;
         }
 
         .legend {
             display: flex;
-            gap: 20px;
+            gap: 12px;
             justify-content: center;
-            margin-top: 16px;
-            font-size: 0.7rem;
+            margin-top: 12px;
+            font-size: 0.6rem;
             background: #2e241a80;
             padding: 6px;
-            border-radius: 60px;
+            border-radius: 50px;
             color: #ffefcf;
             flex-wrap: wrap;
         }
 
         .export-json {
-            margin-top: 16px;
+            margin-top: 14px;
             background: #2d2a1f;
             color: #ffecb3;
-            padding: 10px;
-            border-radius: 32px;
+            padding: 8px;
+            border-radius: 28px;
             font-family: monospace;
-            font-size: 0.65rem;
+            font-size: 0.6rem;
             word-break: break-all;
-            max-height: 100px;
+            max-height: 80px;
             overflow: auto;
         }
-        
-        .warning-badge {
-            background: #b33a1a;
-            color: white;
-            border-radius: 20px;
-            padding: 2px 8px;
-            font-size: 0.7rem;
-            margin-left: 8px;
+
+        @media (max-width: 700px) {
+            .designer-container {
+                padding: 14px 12px;
+            }
+            .control-panel {
+                min-width: 100%;
+            }
+            .preview-area {
+                min-width: 100%;
+            }
+            .layer-chip {
+                font-size: 0.8rem;
+            }
+            button {
+                padding: 6px 12px;
+                font-size: 0.8rem;
+            }
+            .info-card {
+                font-size: 0.7rem;
+            }
         }
     </style>
 </head>
 <body>
 <div class="designer-container">
-    <h1>🐏 羊了个羊 · 严格层级堆叠设计器 🧱</h1>
-    <div class="sub">📐 正方形卡牌 48x48 | <span style="color:#b33a1a; font-weight:bold;">同层绝对禁止任何重叠（包括错开半格也不允许）</span> | 堆叠只能在不同图层之间实现</div>
+    <h1>🐏 羊了个羊 · 边界安全设计器 🧱</h1>
+    <div class="sub">📐 卡牌48x48 | 同层绝对禁止重叠 | <span style="color:#b33a1a;">所有合法点严格位于画布安全边界内 (距边缘≥24px)</span> | 与游戏尺寸完全一致</div>
 
     <div class="flex-layout">
         <div class="control-panel">
             <div class="layer-manager">
                 <div class="layer-title">
                     <span>🗂️ 图层管理 (上层压下层)</span>
-                    <button id="addLayerBtn" style="background:#9b6e3e; padding:4px 14px;">+ 新增图层</button>
+                    <button id="addLayerBtn" style="background:#9b6e3e; padding:4px 12px;">+ 新增</button>
                 </div>
                 <div id="layerListContainer" class="layer-stack"></div>
-                <div style="font-size:0.7rem; margin-top:5px;">💡 点击图层切换 | <strong>同层卡片不可重叠</strong> | 跨层可完全重叠或错位实现堆叠</div>
+                <div style="font-size:0.65rem; margin-top:5px;">💡 点击图层切换 | <strong>同层卡片不可重叠</strong> | 跨层堆叠</div>
             </div>
             
             <div class="info-card">
-                <div><strong>📐 卡牌尺寸:</strong> 正方形 48x48 px</div>
-                <div><strong>🎯 放置规则:</strong> 合法位置 = 基础网格(48px) + 8方向半格偏移(24px)</div>
-                <div><strong>⚠️ 同层碰撞检测:</strong> 任意两张卡片 <strong>矩形区域有交集即禁止</strong> (包括半格错位重叠)</div>
-                <div><strong>📊 当前总卡片:</strong> <span id="totalCardsCount">0</span> 张 
+                <div><strong>📐 卡牌尺寸:</strong> 48x48 px</div>
+                <div><strong>🎯 合法位置:</strong> 基础网格(48px) + 8方向半格(24px)</div>
+                <div><strong>⚠️ 边界安全:</strong> 卡片中心距画布边缘 ≥24px (卡片完整可见)</div>
+                <div><strong>📊 当前卡片:</strong> <span id="totalCardsCount">0</span> 张 
                     (<span id="multipleStatus">❌ 不是3的倍数</span>)
                 </div>
-                <button id="autoFixMultipleBtn" style="margin-top:8px; background:#b88b4a;">🔧 自动补齐至3的倍数 (补空白占位卡)</button>
+                <button id="autoFixMultipleBtn" style="margin-top:8px; background:#b88b4a;">🔧 自动补齐至3的倍数</button>
             </div>
             
-            <button id="exportLevelBtn" class="btn-primary btn-success" style="margin-top:12px;">💾 导出关卡文件 (.json)</button>
+            <button id="exportLevelBtn" class="btn-primary btn-success" style="margin-top:10px;">💾 导出关卡文件 (.json)</button>
             <div class="export-json" id="jsonPreviewText">等待导出数据...</div>
-            <div style="font-size:0.7rem; margin-top:10px; color:#4a3118;">
-                ✅ 同层严格禁止任何重叠（矩形区域相交即拦截）<br>
-                ✅ 堆叠效果通过不同图层实现，跨层可任意叠加<br>
-                ✅ 导出卡片数量自动调整为3的倍数
+            <div style="font-size:0.65rem; margin-top:8px; color:#4a3118;">
+                ✅ 同层严格禁止矩形重叠<br>
+                ✅ 所有放置点均在画布内 (卡片不超出边界)<br>
+                ✅ 堆叠通过不同图层实现
             </div>
         </div>
 
         <div class="preview-area">
             <div class="canvas-header">
-                <span>🖌️ 当前编辑图层: <strong id="currentLayerLabel">第1层</strong></span>
-                <button id="clearCurrentLayerBtn" style="background:#b6582c;">🗑️ 清空当前图层</button>
-                <button id="clearAllBtn" style="background:#aa3e1e;">⚠️ 清空全部卡片</button>
+                <span>🖌️ 当前编辑: <strong id="currentLayerLabel">第1层</strong></span>
+                <div style="display: flex; gap: 8px;">
+                    <button id="clearCurrentLayerBtn" style="background:#b6582c; padding:4px 12px;">🗑️ 清空本层</button>
+                    <button id="clearAllBtn" style="background:#aa3e1e; padding:4px 12px;">⚠️ 全部清空</button>
+                </div>
             </div>
             <div class="grid-canvas-container">
-                <canvas id="designCanvas" width="720" height="620" style="width:100%; height:auto; max-width:720px; aspect-ratio:720/620"></canvas>
+                <canvas id="designCanvas" width="720" height="620"></canvas>
             </div>
             <div class="legend">
-                <span>🔵 蓝色圆点 = 合法放置点 (八方向错位完整网格)</span>
-                <span>🟤 棕色卡片 = 已放置卡片 (数字表示图层)</span>
-                <span>🚫 同层卡片矩形区域完全不可相交 (包含边距重叠)</span>
+                <span>🔵 蓝色点 = 合法安全点 (边界内+八向错位)</span>
+                <span>🟤 卡片 = 已放置 (数字=图层)</span>
+                <span>🚫 同层不可有任何重叠</span>
             </div>
         </div>
     </div>
@@ -277,28 +305,32 @@
 
 <script>
     // --------------------------------------------------------------
-    // 羊了个羊 严格层级堆叠设计器
-    // 核心规则:
-    // 1. 正方形卡牌 48x48，基础网格间距48px，合法点: 基础网格点 + 八方向半格偏移(24px)
-    // 2. 同层卡片绝对禁止任何重叠 —— 使用矩形相交检测，只要卡片矩形区域有交集（即使只重叠1px）即拒绝放置
-    // 3. 跨层可以完全重叠或者任意错位，游戏时上层压下层
-    // 4. 导出 JSON 保证卡片数量为 3 的倍数
+    // 羊了个羊 严格边界安全设计器
+    // 画布 720x620，卡牌48x48，卡片中心必须满足 x∈[24, 696] , y∈[24, 596]
+    // 合法点生成时自动剔除超出边界的点，保证放置后卡片完整显示
+    // 同层矩形重叠严格禁止
     // --------------------------------------------------------------
     
-    const CARD_SIZE = 48;           // 正方形边长
-    const HALF = 24;                // 半格偏移量
+    const CARD_SIZE = 48;
+    const HALF = 24;
     const GRID_STEP = 48;
     
     const CANVAS_W = 720;
     const CANVAS_H = 620;
     
-    let allValidPoints = [];        // 所有合法放置点 {x, y}
-    let cards = [];                 // { id, x, y, layer }
-    let layers = [];                // 图层列表
+    // 边界安全范围：卡片中心最小 = HALF(24) , 最大 = 画布尺寸 - HALF
+    const MIN_X = HALF;
+    const MAX_X = CANVAS_W - HALF;
+    const MIN_Y = HALF;
+    const MAX_Y = CANVAS_H - HALF;
+    
+    let allValidPoints = [];
+    let cards = [];
+    let layers = [];
     let currentLayerId = 0;
     let nextCardId = 1;
     
-    // DOM 元素
+    // DOM
     const layerListContainer = document.getElementById('layerListContainer');
     const totalCardsSpan = document.getElementById('totalCardsCount');
     const multipleStatusSpan = document.getElementById('multipleStatus');
@@ -306,27 +338,35 @@
     const canvas = document.getElementById('designCanvas');
     const ctx = canvas.getContext('2d');
     
-    // ---------- 生成完整合法点集 (基础网格 + 八个方向半格偏移) ----------
+    canvas.width = CANVAS_W;
+    canvas.height = CANVAS_H;
+    
+    // ---------- 生成安全合法点集 (基础网格 + 八个方向半格，且都在边界内) ----------
     function generateValidPoints() {
         const pointsMap = new Map();
         const basePoints = [];
+        // 基础网格点，且确保在边界内
         for (let x = GRID_STEP; x <= CANVAS_W - GRID_STEP; x += GRID_STEP) {
             for (let y = GRID_STEP; y <= CANVAS_H - GRID_STEP; y += GRID_STEP) {
-                basePoints.push({x, y});
-                pointsMap.set(`${x},${y}`, {x, y});
+                if (x >= MIN_X && x <= MAX_X && y >= MIN_Y && y <= MAX_Y) {
+                    basePoints.push({x, y});
+                    pointsMap.set(`${x},${y}`, {x, y});
+                }
             }
         }
+        
         const dirs = [
             {dx: 0, dy: -HALF}, {dx: 0, dy: HALF},
             {dx: -HALF, dy: 0}, {dx: HALF, dy: 0},
             {dx: -HALF, dy: -HALF}, {dx: HALF, dy: -HALF},
             {dx: -HALF, dy: HALF}, {dx: HALF, dy: HALF}
         ];
+        
         for (let base of basePoints) {
             for (let d of dirs) {
                 const nx = base.x + d.dx;
                 const ny = base.y + d.dy;
-                if (nx >= HALF && nx <= CANVAS_W - HALF && ny >= HALF && ny <= CANVAS_H - HALF) {
+                if (nx >= MIN_X && nx <= MAX_X && ny >= MIN_Y && ny <= MAX_Y) {
                     const key = `${nx},${ny}`;
                     if (!pointsMap.has(key)) {
                         pointsMap.set(key, {x: nx, y: ny});
@@ -334,12 +374,13 @@
                 }
             }
         }
+        
         let points = Array.from(pointsMap.values());
         points.sort((a,b) => (a.y - b.y) || (a.x - b.x));
         return points;
     }
     
-    // 初始化图层 (默认3层)
+    // 初始化图层
     function initLayers() {
         layers = [];
         for (let i=0; i<3; i++) {
@@ -349,7 +390,6 @@
         renderLayerUI();
     }
     
-    // 渲染图层列表
     function renderLayerUI() {
         layerListContainer.innerHTML = '';
         layers.forEach((layer, idx) => {
@@ -394,7 +434,6 @@
         currentLayerLabel.innerText = `第${currentLayerId+1}层`;
     }
     
-    // 更新统计数据
     function updateStats() {
         const total = cards.length;
         totalCardsSpan.innerText = total;
@@ -407,9 +446,7 @@
         }
     }
     
-    // 关键: 同层矩形重叠检测 (严格禁止任何相交)
-    // 给定新卡片中心坐标 (x, y)，检查在当前图层的所有卡片中，矩形区域是否有交集
-    // 矩形范围: [x - CARD_SIZE/2, x + CARD_SIZE/2] × [y - CARD_SIZE/2, y + CARD_SIZE/2]
+    // 同层矩形重叠检测
     function isRectOverlapInSameLayer(newX, newY, layer) {
         const newLeft = newX - CARD_SIZE/2;
         const newRight = newX + CARD_SIZE/2;
@@ -423,21 +460,20 @@
             const existTop = card.y - CARD_SIZE/2;
             const existBottom = card.y + CARD_SIZE/2;
             
-            // 如果矩形相交 (包含边界接触也算重叠，因为卡片不能共享边缘)
             if (newRight > existLeft && newLeft < existRight && newBottom > existTop && newTop < existBottom) {
-                return true; // 重叠
+                return true;
             }
         }
         return false;
     }
     
-    // 查找最近的合法点
-    function findNearestValidPoint(clickX, clickY, maxDist=24) {
+    // 查找最近的合法点 (考虑画布缩放)
+    function findNearestValidPoint(clickCanvasX, clickCanvasY, maxDist=26) {
         let best = null;
         let minDist = maxDist;
         for (let p of allValidPoints) {
-            const dx = p.x - clickX;
-            const dy = p.y - clickY;
+            const dx = p.x - clickCanvasX;
+            const dy = p.y - clickCanvasY;
             const dist = Math.sqrt(dx*dx + dy*dy);
             if (dist < minDist) {
                 minDist = dist;
@@ -447,29 +483,30 @@
         return best;
     }
     
-    // 点击画布放置卡片 (同层严格禁止矩形重叠)
-    function onCanvasClick(e) {
+    function getCanvasCoords(e) {
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
         let mouseX = (e.clientX - rect.left) * scaleX;
         let mouseY = (e.clientY - rect.top) * scaleY;
-        mouseX = Math.min(Math.max(mouseX, HALF), CANVAS_W - HALF);
-        mouseY = Math.min(Math.max(mouseY, HALF), CANVAS_H - HALF);
-        
-        const target = findNearestValidPoint(mouseX, mouseY, 26);
+        mouseX = Math.min(Math.max(mouseX, MIN_X), MAX_X);
+        mouseY = Math.min(Math.max(mouseY, MIN_Y), MAX_Y);
+        return { x: mouseX, y: mouseY };
+    }
+    
+    function onCanvasClick(e) {
+        const { x: canvasX, y: canvasY } = getCanvasCoords(e);
+        const target = findNearestValidPoint(canvasX, canvasY, 28);
         if (!target) {
-            alert("请点击蓝色合法放置点 (基础网格或八方向错位点)");
+            alert("请点击蓝色合法放置点 (所有点均在安全边界内)");
             return;
         }
         
-        // 严格同层重叠检测
         if (isRectOverlapInSameLayer(target.x, target.y, currentLayerId)) {
-            alert(`❌ 同层禁止重叠！当前第${currentLayerId+1}层已有卡片与该位置矩形区域相交。\n堆叠效果请在不同图层之间实现。`);
+            alert(`❌ 同层禁止重叠！第${currentLayerId+1}层已有卡片与该位置相交。`);
             return;
         }
         
-        // 添加卡片
         cards.push({
             id: nextCardId++,
             x: target.x,
@@ -481,7 +518,6 @@
         updateStats();
     }
     
-    // 清空当前图层
     function clearCurrentLayer() {
         cards = cards.filter(c => c.layer !== currentLayerId);
         drawCanvas();
@@ -490,7 +526,7 @@
     }
     
     function clearAllCards() {
-        if (confirm('⚠️ 清空所有卡片？不可撤销')) {
+        if (confirm('⚠️ 清空所有卡片？')) {
             cards = [];
             drawCanvas();
             renderLayerUI();
@@ -498,30 +534,22 @@
         }
     }
     
-    // 自动补齐至3的倍数 (添加到当前图层且不与同层任何卡片重叠)
     function autoFixMultiple() {
         let total = cards.length;
         const remainder = total % 3;
         if (remainder === 0) {
-            alert("已经是3的倍数，无需补齐");
+            alert("已经是3的倍数");
             return;
         }
         const need = 3 - remainder;
         let added = 0;
-        // 遍历所有合法点，寻找当前图层中不与任何卡片重叠的位置
         for (let point of allValidPoints) {
             if (added >= need) break;
             if (!isRectOverlapInSameLayer(point.x, point.y, currentLayerId)) {
-                cards.push({
-                    id: nextCardId++,
-                    x: point.x,
-                    y: point.y,
-                    layer: currentLayerId
-                });
+                cards.push({ id: nextCardId++, x: point.x, y: point.y, layer: currentLayerId });
                 added++;
             }
         }
-        // 如果当前图层已满，尝试其他图层
         if (added < need) {
             for (let layerIdx = 0; layerIdx < layers.length && added < need; layerIdx++) {
                 for (let point of allValidPoints) {
@@ -552,15 +580,25 @@
         drawCanvas();
         renderLayerUI();
         updateStats();
-        alert(`已添加 ${added} 张占位卡片，总数现为 ${cards.length} (3的倍数)`);
+        alert(`已添加 ${added} 张，总数 ${cards.length} (3的倍数)`);
     }
     
-    // 绘制画布
     function drawCanvas() {
         ctx.clearRect(0, 0, CANVAS_W, CANVAS_H);
+        // 绘制安全边界提示线 (浅色虚线)
+        ctx.save();
+        ctx.strokeStyle = '#d9534f';
+        ctx.setLineDash([5, 8]);
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(MIN_X-2, MIN_Y-2, CARD_SIZE+4, CARD_SIZE+4);
+        ctx.strokeRect(MAX_X-CARD_SIZE/2-2, MIN_Y-2, CARD_SIZE+4, CARD_SIZE+4);
+        ctx.strokeRect(MIN_X-2, MAX_Y-CARD_SIZE/2-2, CARD_SIZE+4, CARD_SIZE+4);
+        ctx.strokeRect(MAX_X-CARD_SIZE/2-2, MAX_Y-CARD_SIZE/2-2, CARD_SIZE+4, CARD_SIZE+4);
+        ctx.setLineDash([]);
+        
         // 网格线
         ctx.strokeStyle = '#c8aa6e';
-        ctx.lineWidth = 0.6;
+        ctx.lineWidth = 0.8;
         for (let x = GRID_STEP; x <= CANVAS_W; x += GRID_STEP) {
             ctx.beginPath();
             ctx.moveTo(x, 0);
@@ -573,7 +611,8 @@
             ctx.lineTo(CANVAS_W, y);
             ctx.stroke();
         }
-        // 合法点
+        
+        // 合法安全点
         for (let p of allValidPoints) {
             ctx.beginPath();
             ctx.fillStyle = '#2c7cb6';
@@ -583,7 +622,8 @@
             ctx.arc(p.x, p.y, 3, 0, 2*Math.PI);
             ctx.fill();
         }
-        // 按图层绘制卡片 (下层先画)
+        
+        // 按图层绘制卡片
         const sortedCards = [...cards].sort((a,b) => a.layer - b.layer);
         for (let card of sortedCards) {
             const isCurrent = (card.layer === currentLayerId);
@@ -601,7 +641,7 @@
             ctx.fillStyle = '#b87c3a';
             ctx.fillText('🐏', x + CARD_SIZE*0.65, y + CARD_SIZE*0.82);
         }
-        // 高亮当前图层卡片外框
+        
         ctx.globalAlpha = 0.25;
         for (let card of cards) {
             if (card.layer === currentLayerId) {
@@ -610,13 +650,13 @@
             }
         }
         ctx.globalAlpha = 1;
+        ctx.restore();
     }
     
-    // 导出关卡 JSON
     function exportLevel() {
         let total = cards.length;
         if (total % 3 !== 0) {
-            if (confirm(`当前卡片数量 ${total} 不是3的倍数，是否自动补齐后再导出？`)) {
+            if (confirm(`卡片数量 ${total} 不是3的倍数，是否自动补齐？`)) {
                 autoFixMultiple();
                 total = cards.length;
             } else {
@@ -624,15 +664,18 @@
             }
         }
         const exportData = {
-            version: "4.0",
+            version: "5.0",
             cardSize: CARD_SIZE,
             halfOffset: HALF,
             gridStep: GRID_STEP,
+            canvasWidth: CANVAS_W,
+            canvasHeight: CANVAS_H,
+            safeMargin: HALF,
             totalCards: cards.length,
             layersCount: layers.length,
             cards: cards.map(c => ({ id: c.id, x: c.x, y: c.y, layer: c.layer })),
             validPoints: allValidPoints,
-            description: "同层严格禁止矩形重叠（包括半格错位相交），堆叠只能在不同图层间实现。"
+            description: "所有卡片中心均在安全边界内(距边缘≥24px)，同层无重叠。画布尺寸720x620，与游戏完全一致。"
         };
         const jsonStr = JSON.stringify(exportData, null, 2);
         document.getElementById('jsonPreviewText').innerText = jsonStr;
@@ -640,12 +683,12 @@
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = `sheep_strict_level_${Date.now()}.json`;
+        a.download = `sheep_safe_level_${Date.now()}.json`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
         URL.revokeObjectURL(url);
-        alert("✅ 关卡已导出！同层无任何重叠，堆叠效果依靠跨层实现。");
+        alert("✅ 关卡已导出！所有卡片均在安全边界内，手机游戏时完整可见。");
     }
     
     function addNewLayer() {
@@ -665,9 +708,9 @@
     document.getElementById('exportLevelBtn').addEventListener('click', exportLevel);
     canvas.addEventListener('click', onCanvasClick);
     
-    // 初始化
     function init() {
         allValidPoints = generateValidPoints();
+        console.log(`生成了 ${allValidPoints.length} 个安全合法点 (边界内无超出)`);
         initLayers();
         cards = [];
         nextCardId = 1;
@@ -675,7 +718,6 @@
         updateStats();
     }
     init();
-    window.addEventListener('resize', () => drawCanvas());
 </script>
 </body>
 </html>
